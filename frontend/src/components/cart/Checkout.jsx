@@ -1,0 +1,200 @@
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Payapl from './Payapl';
+import { useDispatch, useSelector } from 'react-redux';
+import { createCheckout } from '../../slice/checkOutslice';
+import axios from 'axios';
+
+const Checkout = () => {
+    const dispatch=useDispatch();
+    const {cart,loaidng,error}=useSelector((state)=>state.cart);
+    const {user}=useSelector((state)=>state.auth);
+    const navigate=useNavigate();
+    const [checkoutId,setcheckoutId]=useState(null);
+    const[shippingAddress,setShippingAddress]=useState({
+        firstName:"",
+        lastName:"",
+        address:"",
+        city:"",
+        postalCode:"",
+        country:"",
+        phone:"",
+    })
+
+    useEffect(()=>{
+        if(!cart || !cart.products || cart.products.length==0){
+            navigate('/');
+        }
+    },[cart,navigate]);
+
+
+        const handleCheckout=(e)=>{
+        e.preventDefault();
+        if(cart && cart.products.length >0){
+            const res=dispatch(createCheckout({
+                checkoutItems:cart.products,
+                shippingAddress,
+                paymentMethod:"PayPal",
+                totalPrice:cart.totalPrice,
+            }))
+
+            if(res.payload && res.payload._id){
+                setcheckoutId(res.payload._id); 
+            }
+        }
+    }
+
+    const handlePaymentsuccess= async(details)=>{
+       try{
+        const res=await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/checkout/pay`,{paymentStatus:"paid"},
+            {
+                headers:{
+                    Authorization:`Bearer ${localStorage.getItem("userToken")}`
+                }
+            }
+        )
+        if(res.status===200){
+            await handleFinalizeCheckout(checkoutId);
+        }
+        else{
+            console.log(error);
+        }
+       }
+       catch(error){
+
+       }
+        navigate("/order-confirmation");
+    }
+
+  return (
+    <>
+    <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto py-10 px-6 tracking-tighter'>
+        {/*left  */}
+        <div className='bg-white rounded-lg p-4'>
+            <h2 className='text-2xl uppercase mb-4'>Checkout</h2>
+            <form onSubmit={handleCheckout}>
+                <h3 className='text-lg mb-4'>Content Details</h3>
+                <div className='mb-4'>
+                    <label className='block text-gray-700 text-sm'>Email</label>
+                    <input type="email"
+                    value="user@gmail.com"
+                    className='w-full p-1 border rounded'
+                    disabled/>
+                </div>
+                <h3 className='text-lg mb-3'>Delivery</h3>
+                <div className='mb-4 grid grid-cols-2 gap-4'>
+                    <div>
+                        <label className='block text-gray-700 text-sm'>First Name</label>
+                        <input type="name"
+                        value={shippingAddress.firstName}
+                        onChange={(e)=>setShippingAddress({...shippingAddress,firstName:e.target.value})}
+                        className='w-full p-1 border rounded' required/>
+                    </div>
+                    <div>
+                        <label className='block text-gray-700 text-sm'>Last Name</label>
+                        <input type="name"
+                        value={shippingAddress.lastName}
+                        onChange={(e)=>setShippingAddress({...shippingAddress,lastName:e.target.value})}
+                        className='w-full p-1 border rounded' required/>
+                    </div>
+                </div>
+                <div className='mb-4'>
+                    <label className='block text-gray-700 text-sm'>Address</label>
+                    <input type="text" value={shippingAddress.address}
+                    onChange={(e)=>setShippingAddress({...shippingAddress,address:e.target.value})}
+                    className='w-full p-1 border rounded' required/>
+                </div>
+
+                <div className='mb-4 grid grid-cols-2 gap-4'>
+                     <div>
+                        <label className='block text-gray-700 text-sm'>City</label>
+                        <input type="name"
+                        value={shippingAddress.city}
+                        onChange={(e)=>setShippingAddress({...shippingAddress,city:e.target.value})}
+                        className='w-full p-1 border rounded' required/>
+                    </div>
+                    <div>
+                        <label className='block text-gray-700 text-sm'>Postal code</label>
+                        <input type="name"
+                        value={shippingAddress.postalCode}
+                        onChange={(e)=>setShippingAddress({...shippingAddress,postalCode:e.target.value})}
+                        className='w-full p-1 border rounded' required/>
+                    </div>
+                </div>
+                 <div className='mb-4'>
+                    <label className='block text-gray-700 text-sm'>Country</label>
+                    <input type="text" value={shippingAddress.country}
+                    onChange={(e)=>setShippingAddress({...shippingAddress,country:e.target.value})}
+                    className='w-full p-1 border rounded' required/>
+                </div>
+                 <div className='mb-4'>
+                    <label className='block text-gray-700 text-sm'>Phone Number</label>
+                    <input type="text" value={shippingAddress.phone}
+                    onChange={(e)=>setShippingAddress({...shippingAddress,phone:e.target.value})}
+                    className='w-full p-1 border rounded' required/>
+                </div>
+
+                <div className='mt-6'>
+                    { !checkoutId ? (
+                        <button type="submit" className='w-full bg-black text-white py-3 rounded'>Continue to Payment</button>
+                    ):(
+                        <div>
+                            <h3 className='text-lg mb-3'>Pay With PayPal</h3>
+                            <Payapl amount={100} onSuccess={handlePaymentsuccess}
+                            onError={(error)=>alert("Payment fialed, try Again")}/>
+                        </div>
+                    )
+                }
+                </div>
+            </form>
+
+        </div>
+
+        {/* right section */}
+
+        <div className='bg-gray-50 p-6 rounded-lg'>
+            <h3 className='text-lg mb-4 font-semibold'>Order Summary</h3>
+            <div className='border-t py-4 mb-4'>
+                {
+                    cart.products.map((product,index)=>(
+                        <div key={index} className='flex items-center justify-between py-2 border-b'>
+                            <div className='flex items-start'>
+                                <img src={product.image}
+                                className='w-20 h-20 object-cover mr-4'/>
+                                <div>
+                                <h3 className='text-md'>{product.name}</h3>
+                                <p className='text-gray-500'>Size: {product.size}</p>
+                                 <p className='text-gray-500'>color: {product.color}</p>
+                            </div>
+                            </div>
+                            <div>
+                                <p className='text-gray-500 text-xl'>${product.price?.toLocaleString()}</p>
+                            </div>          
+
+                        </div>
+                    ))
+                }
+            </div>
+            <div className='text-lg mb-4 flex justify-between items-center'>
+                <p>Subtotal</p>
+                <p>${cart.totalPrice?.toLocaleString()}</p>
+
+            </div>
+            <div className='flex justify-between items-center text-lg'>
+                <p>Shipping</p>
+                <p>Free</p>
+            </div>
+            <div className='flex justify-between items-center mt-4  border-t pt-4 text-lg'>
+                <p>Total Price</p>
+                <p>${cart.totalPrice?.toLocaleString()}</p>
+
+            </div>
+
+        </div>
+
+        </div>
+    </>
+  )
+}
+
+export default Checkout
