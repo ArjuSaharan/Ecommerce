@@ -21,14 +21,14 @@ const ProductDetails = ({ product }) => {
     const productFetchId = product?._id || id;
     const currentProduct = product || selectedProducts;
     useEffect(() => {
-     if (productFetchId) {
-        if (!product) {
-            dispatch(fetchProductDetails(productFetchId));
-        }
+        if (productFetchId) {
+            if (!product) {
+                dispatch(fetchProductDetails(productFetchId));
+            }
 
-        dispatch(fetchSimilarProducts({ id: productFetchId }));
-    }
-}, [dispatch, productFetchId]);
+            dispatch(fetchSimilarProducts({ id: productFetchId }));
+        }
+    }, [dispatch, productFetchId]);
     useEffect(() => {
 
         if (currentProduct?.images?.length > 0) {
@@ -67,13 +67,13 @@ const ProductDetails = ({ product }) => {
                 toast.success("Products added to cart", {
                     duration: 1000,
                 })
-                    .catch((error) => {
-                        console.log(error);
-                        toast.error("Failed to add product to cart");
-                    })
-                    .finally(() => {
-                        setbtndisable(false);
-                    })
+            })
+            .catch((error) => {
+                console.log(error);
+                toast.error("Failed to add product to cart");
+            })
+            .finally(() => {
+                setbtndisable(false);
             })
     }
 
