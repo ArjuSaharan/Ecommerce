@@ -1,62 +1,21 @@
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { fetchUserOrders } from '../slice/orderslice';
 
 const MyOrderPage = () => {
-    const[orders,setorders]=useState([]);
+    // const[orders,setorders]=useState([]);
     const navigate=useNavigate();
+    const dispatch=useDispatch();
+    const {orders,loading,error}=useSelector((state)=>state.orders);
     useEffect(()=>{
-        // simulate the fetching order
-        setTimeout(() => {
-            const mockorders=[
-                {
-                    _id:"1211",
-                    createdAt:new Date(),
-                    shippingAddress:{city:"New york",country:"USA"},
-                    ordersItems:[
-                        {
-                            name:"product1",
-                            image:"https://i.pinimg.com/736x/6c/a5/3b/6ca53bf3b2861e5ad541236480cabdfe.jpg",
-                        }
-                    ],
-                    totalprice:100,
-                    isPaid:true,
-                },
-                {
-                    _id:"2345",
-                    createdAt:new Date(),
-                    shippingAddress:{city:"New york",country:"USA"},
-                    ordersItems:[
-                        {
-                            name:"product1",
-                            image:"https://i.pinimg.com/736x/00/f6/c8/00f6c8cb68a07a9a5756e6b85edfd113.jpg",
-                        }
-                    ],
-                    totalprice:140,
-                    isPaid:false,
-                },
-                {
-                    _id:"1456",
-                    createdAt:new Date(),
-                    shippingAddress:{city:"New york",country:"USA"},
-                    ordersItems:[
-                        {
-                            name:"product1",
-                            image:"https://i.pinimg.com/736x/45/ce/d6/45ced66a9f6b7c78618112734cb00777.jpg",
-                        }
-                    ],
-                    totalprice:120,
-                    isPaid:true,
-                }
-            ];
-
-            setorders(mockorders);
-        }, 1000);
-
-    },[]);
+        dispatch(fetchUserOrders());
+    },[dispatch]);
     const handleRowClick=async(orderId)=>{
         navigate(`/order/${orderId}`);
     }
-
+    if(loading) return <p>loading...</p>
+    if(error) return <p>Erro :{error}</p>
   return (
     <>
     <div className='max-w-7xl mx-auto p-4 sm:p-6'>
@@ -86,7 +45,7 @@ const MyOrderPage = () => {
                                     />
                                   </td>
                                   <td className='py-2 px-2 sm:py-4 sm:px-4 font-medium text-gray-900 whitespace-nowrap'>#{order._id} </td>
-                                  <td className='py-2 px-2 sm:py-4 sm:px-4'>{new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}</td>
+                                  <td className='py-2 px-2 sm:py-4 sm:px-4'>{new Date(order.createdAt).toLocaleDateString()}{" "} {new Date(order.createdAt).toLocaleTimeString()}</td>
                                   <td className='py-2 px-2 sm:py-4 sm:px-4 '>{order.shippingAddress ? `${order.shippingAddress.city}, ${order.shippingAddress.country}`:"N/a"}</td>
                                   <td className='py-2 px-2 sm:py-4 sm:px-4 '>{order.ordersItems.length}</td>
                                 <td className='py-2 px-2 sm:py-4 sm:px-4 font-medium'>{order.totalprice}</td>

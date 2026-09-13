@@ -21,6 +21,7 @@ import OrderMangement from './components/admin/OrderMangement';
 
 import {Provider} from 'react-redux';
 import store from './redux/store';
+import ProtectRoutes from './components/common/ProtectRoutes';
 const App = () => {
   const {collection}=useParams();
   return (
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="order/:id" element={<OrderDetails/>}/>
           <Route path="/my-orders" element={<MyOrderPage/>}/>
         </Route>
+        {/* <Route path='/admin' element={<ProtectRoutes role="admin"><AdminLayout/></ProtectRoutes>}> */}
         <Route path='/admin' element={<AdminLayout/>}>
            <Route index element={<AdminHome/>}/>
            <Route path='users' element={<UserMangement/>}/>

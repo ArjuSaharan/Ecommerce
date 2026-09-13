@@ -71,7 +71,7 @@ const orderschema=new mongoose.Schema({
         enum:["Processing","Shipped","Delivered","Cancelled"],
         default:"Processing",
     },
-},{timeStamps:true},
+},{timestamps:true},
 )
 
 const orderModel=mongoose.model("order",orderschema);

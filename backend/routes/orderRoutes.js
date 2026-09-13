@@ -11,9 +11,10 @@ router.get('/myorders',protect,async(req,res)=>{
         const orders=(await orderModel.find({user:req.user._id})).sort({
             createdAt:-1,
         });
-        res.json(orders);
+        res.status(200).json(orders);
     }
     catch(error){
+        console.log("order error",error);
         return res.status(500).json({message:"server aerror"});
     }
 })
@@ -28,10 +29,11 @@ router.get('/:id',protect,async(req,res)=>{
         if(!order){
             return res.status(404).json({message:'order not found'});
         }
-        return res.json(order);
+        return res.status(200).json(order);
 
     }
     catch(error){
+        console.log(error.message);
         return res.status(500).json({message:"server error"});
     }
 })

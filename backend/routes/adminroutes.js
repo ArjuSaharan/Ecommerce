@@ -27,7 +27,7 @@ router.post('/',protect,admin,async(req,res)=>{
             role:role || "customer",
         })
         await user.save();
-        return res.status(201).json({message:'user created successfully'});
+        return res.status(201).json({message:'user created successfully',user:user});
     }
     catch(error){
         return res.status(500).json({message:"server error"});
@@ -35,21 +35,33 @@ router.post('/',protect,admin,async(req,res)=>{
 })
 
 // put to update the users info by admin 
-router.put('/:id',protect,admin,async(req,res)=>{
-    try{
-        const user=await userModel.findById(req.params.id);
-        if(user){
-            user.name=req.body.name || user.name;
-            user.email=req.body.email || user.email;
-            user.role=req.body.role || user.role;
+router.put('/:id', protect, admin, async (req, res) => {
+    try {
+        const user = await userModel.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found"
+            });
         }
-        const updateduser=await user.save();
-        return res.status(201).json({message:"user updated successfully",user:updateduser})
+
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.role = req.body.role || user.role;
+
+        const updatedUser = await user.save();
+
+        return res.status(200).json({
+            message: "user updated successfully",
+            user: updatedUser
+        });
     }
-    catch(error){
-        return res.status(500).json({message:"server error"});
+    catch (error) {
+        return res.status(500).json({
+            message: "server error"
+        });
     }
-})
+});
 
 
 // delete user by admin

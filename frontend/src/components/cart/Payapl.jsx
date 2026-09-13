@@ -7,7 +7,7 @@ const Payapl = ({amount, onSuccess,onError}) => {
         <PayPalButtons style={{layout:'vertical'}}>
             createOrder={(data,action)=>{
                 return useActionState.order.create({
-                    purchase_units:[{amount:{value:amount}}]
+                    purchase_units:[{amount:{value:parseFloat(amount).toFixed(2)}}]
                 })
             }}
             onApprove={(data,actions)=>{

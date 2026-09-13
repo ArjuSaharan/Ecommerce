@@ -12,7 +12,7 @@ const Navbar = () => {
    const[draweropen,setdraweropen]=useState(false);
    const[navdraw,setnavdraw]=useState(false);
    const {cart}=useSelector((state)=>state.cart);
-   
+   const {user}=useSelector((state)=>state.auth);
    const cartItemcount=cart?.products?.reduce((total,product) =>total+ product.quantity , 0) || 0;
 
 
@@ -36,6 +36,9 @@ const Navbar = () => {
 
 {/* right icons */}
          <div className='flex items-center space-x-4'>
+          {/* {user && user.role==="admin" && (
+            <Link to='/admin' className='blcok bg-black px-3 py-1 rounded text-sm text-white'>Admin</Link>
+          )} */}
           <Link to='/admin' className='blcok bg-black px-3 py-1 rounded text-sm text-white'>Admin</Link>
              <Link to="/profile" className='hover:text-black'><FaRegUser className='h-6 w-6 text-gray-700'/></Link>
              <button  onClick={togglecart}

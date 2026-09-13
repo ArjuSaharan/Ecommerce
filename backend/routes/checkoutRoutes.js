@@ -15,6 +15,8 @@ router.post('/',protect,async (req,res)=>{
         return res.status(400).json({message:"no items in checkout"});
     }
     try{
+        console.log("CHECKOUT BODY:", req.body);
+console.log("USER:", req.user);
         const newCheckout= await checkOutModel.create({
             user:req.user._id,
             checkoutItems:checkoutItems,

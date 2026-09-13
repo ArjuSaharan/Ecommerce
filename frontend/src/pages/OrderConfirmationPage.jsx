@@ -1,37 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const OrderConfirmationPage = () => {
 
-  const checkout={
-    _id:"1223",
-    createdAt:new Date(),
-    checkoutItems:[
-      {
-        productId:"1",
-        name:"jacket",
-        color:"black",
-        size:"M",
-        price:"120",
-        qunatity:1,
-        image:"https://picsum.photos/150?random=1"
-      },
-       {
-        productId:"2",
-        name:"Kurti",
-        color:"black",
-        size:"M",
-        price:"170",
-        qunatity:1,
-        image:"https://picsum.photos/150?random=2"
-      }
-    ],
-    shippingAddress:{
-      address:"123 fashion",
-      city:"fatehabad,haryana",
-      country:"India"
-    }
-  }
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
 
+  const {checkout} =useSelector((state)=>state.checkout);
+
+  useEffect(()=>{
+    if(checkout && checkout._id){
+      dispatch(clearCart());
+      localStorage.removeItem("cart");
+    }
+    else{
+      navigate("/my-orders");
+    }
+  },[checkout,navigate,dispatch]);
   const calculateEstimateDelivery=(createdAt)=>{
     const orderDate=new Date(createdAt);
     orderDate.setDate(orderDate.getDate() +10);  //add 10 from order day

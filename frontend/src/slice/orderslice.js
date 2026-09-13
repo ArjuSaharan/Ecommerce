@@ -2,9 +2,10 @@ import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // fetch user orders
+const backendURL = "http://localhost:5000";
 export const fetchUserOrders= createAsyncThunk("orders/fetchUserOrders",async(_,{rejectWithValue})=>{
    try{
-        const response=axios.get(backendURL +"/api/orders/myorders",
+        const response=await axios.get(backendURL +"/api/orders/myorders",
             {
                 headers:{
                     Authorization:`Bearer ${localStorage.getItem("userToken")}`,
@@ -14,7 +15,9 @@ export const fetchUserOrders= createAsyncThunk("orders/fetchUserOrders",async(_,
         return response.data;
     }
     catch(error){
-        return rejectWithValue(error.response.data);
+        return rejectWithValue( error.response?.data || {
+                    message: error.message || "Failed to fetch orders"
+                });
 
     }
 })
@@ -23,7 +26,7 @@ export const fetchUserOrders= createAsyncThunk("orders/fetchUserOrders",async(_,
 //  specfic order by id
 export const fetchOrderDetails=createAsyncThunk("orders/fetchOrderDetails",async(orderId,{rejectWithValue})=>{
     try{
-        const response=axios.get(backendURL +`/api/orders/${orderId}`,
+        const response=await axios.get(backendURL +`/api/orders/${orderId}`,
             {
                 headers:{
                     Authorization:`Bearer ${localStorage.getItem("userToken")}`,
@@ -33,7 +36,9 @@ export const fetchOrderDetails=createAsyncThunk("orders/fetchOrderDetails",async
         return response.data;
     }
     catch(error){
-        return rejectWithValue(error.response.data);
+        return rejectWithValue( error.response?.data || {
+                    message: error.message || "Failed to fetch orders"
+                });
 
     }
 })
@@ -62,7 +67,7 @@ const orderSlice=createSlice({
         })
         .addCase(fetchUserOrders.rejected,(state,action)=>{
             state.loading=false;
-            state.error=action.payload.message;
+            state.error = action.payload?.message || action.error.message;
         })
          .addCase(fetchOrderDetails.pending,(state)=>{
             state.loading=true;
@@ -74,7 +79,7 @@ const orderSlice=createSlice({
         })
         .addCase(fetchOrderDetails.rejected,(state,action)=>{
             state.loading=false;
-            state.error=action.payload.message;
+            state.error = action.payload?.message || action.error.message;
         })
     }
 })

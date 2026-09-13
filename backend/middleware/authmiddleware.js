@@ -10,12 +10,12 @@ export const protect=async (req,res,next)=>{
             token=req.headers.authorization.split(" ")[1];
             const decoded=jwt.verify(token,process.env.SECRET_KEY)
 
-            req.user= await userModel.findById(decoded.user.id).select("-password") ;   //exculde password
+            req.user= await userModel.findById(decoded.id).select("-password") ;   //exculde password
             next();
         }
         catch(error){
             console.log("token verification field" ,error);
-            resizeBy.json(401).json({message:"not authorize token failed"});
+            res.json(401).json({message:"not authorize token failed"});
         }
     }
     else{
